@@ -4,9 +4,11 @@ COCO to YOLO converter
 # Usage
 
 `python COCO2YOLO.py -j coco.json -o path_to_dir`
+
+`path_to_dir is train_out andverify_out`
 ### Or download [Release](https://github.com/alexmihalyk23/COCO2YOLO/releases/tag/v1.0.0) and run
 `COCO2YOLO.exe -j coco.json -o path_to_dir`
-`path_to_dir is train_out andverify_out`
+
 
 # To test the conversion you can run test.py
 `python test.py -i img.jpg -t converted_to_yolo.txt`
