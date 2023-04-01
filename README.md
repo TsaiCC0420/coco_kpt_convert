@@ -2,7 +2,7 @@
 COCO to YOLO converter
 
 # Usage
-ˋyou should need to make two dir about train_out and verify_outˋ 
+you should need to make two dir about train_out and verify_out
 
 `python COCO2YOLO.py -j coco.json -o path_to_dir`
 
