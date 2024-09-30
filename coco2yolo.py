@@ -17,10 +17,6 @@ class COCO2YOLO:
         self.coco_name_list = list(self.coco_id_name_map.values())
         print("total images", len(self.labels['images']))
         print("total categories", len(self.labels['categories']))
-        annotation = self.labels['annotations']
-        for ann in annotation:
-            kpts = ann['keypoints']
-            print("keypoints labels on ",kpts)
         print("total labels", len(self.labels['annotations']))
 
     def _check_file_and_dir(self, file_path, dir_path):
@@ -60,46 +56,20 @@ class COCO2YOLO:
         h *= dh
         return centerx, centery, w, h
 
-
-    def _keypoints_2_yolokeypoint(self, keypoints, img_w, img_h):
-        kpts = []
-        kptsxindex = [0]
-        kptsyindex = [1]
-        for i in range(1,17):
-            kptsxindex.append(0 + (i * 3))
-            kptsyindex.append(1 + (i * 3))
-        #print(keypoints)
-        for i in range (len(keypoints)):
-            if i not in kptsxindex and i not in kptsyindex:
-                kpts.append(keypoints[i])
-            elif i not in kptsxindex:
-                dh = 1 / img_h
-                kpty = keypoints[i] * dh
-                kpts.append(kpty) 
-            else:
-                dw = 1 / img_w
-                kptx = keypoints[i] * dw
-                kpts.append(kptx)
-        return kpts
-
     def _convert_anno(self, images_info):
         anno_dict = dict()
         for anno in self.labels['annotations']:
             bbox = anno['bbox']
             image_id = anno['image_id']
             category_id = anno['category_id']
-            kpts_pos = anno['keypoints']
 
             image_info = images_info.get(image_id)
             image_name = image_info[0]
             img_w = image_info[1]
             img_h = image_info[2]
-            #print(img_h)
             yolo_box = self._bbox_2_yolo(bbox, img_w, img_h)
-            yolokpts = self._keypoints_2_yolokeypoint(kpts_pos, img_w, img_h)
-            #print(yolokpts)
 
-            anno_info = (image_name, category_id, yolo_box, yolokpts)
+            anno_info = (image_name, category_id, yolo_box)
             anno_infos = anno_dict.get(image_id)
             if not anno_infos:
                 anno_dict[image_id] = [anno_info]
@@ -131,17 +101,15 @@ class COCO2YOLO:
 
     def _save_txt(self, anno_dict):
         for k, v in anno_dict.items():
-            file_name = v[0][0].split(".")[0] + ".txt"
+            file_name = os.path.splitext(v[0][0])[0] + ".txt"
             with open(os.path.join(output, file_name), 'w', encoding='utf-8') as f:
-                #print(k, v)
+                print(k, v)
                 for obj in v:
                     cat_name = self.coco_id_name_map.get(obj[1])
                     category_id = self.coco_name_list.index(cat_name)
                     box = ['{:.6f}'.format(x) for x in obj[2]]
                     box = ' '.join(box)
-                    kpt = ['{:.6f}'.format(x) for x in obj[3]]
-                    kpt = ' '.join(kpt)
-                    line = str(category_id) + ' ' + box + ' ' + str(kpt)
+                    line = str(category_id) + ' ' + box
                     f.write(line + '\n')
 
 
